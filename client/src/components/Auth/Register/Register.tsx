@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 import {
   Box,
   Button,
@@ -6,89 +6,105 @@ import {
   TextField,
   Typography,
   Paper,
+  CircularProgress,
 } from "@mui/material";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-// ✅ Use @ alias or relative if not set
-
-// ✅ Define User type
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
 
 export default function Register() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [name, setName] = useState("Rayavarapu Praneeth"); // dummy
+  const [email, setEmail] = useState("praneeth@example.com"); // dummy
+  const [password, setPassword] = useState("password123"); // dummy
+  const [loading, setLoading] = useState(false);
 
+  const { login, user } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  // Redirect to chat if already logged in
+  useEffect(() => {
+    if (user) navigate("/chat");
+  }, [user, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-      const { data } = await axios.post<{ token: string; user: User }>(
-        "http://localhost:5000/api/auth/register",
-        form
-      );
-      localStorage.setItem("token", data.token);
-      login(data.user);
-      navigate("/chat");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        alert(err.response?.data?.msg || "Registration failed");
-      } else {
-        alert("An unexpected error occurred.");
-      }
-    }
+    setLoading(true);
+
+    // Simulate backend call
+    setTimeout(() => {
+      const dummyUser = {
+        id: 1,
+        name,
+        email,
+      };
+
+      // Simulate saving to localStorage & context
+      localStorage.setItem("token", "dummy_token_123");
+      login(dummyUser);
+      setLoading(false);
+    }, 1000);
   };
 
   return (
     <Container maxWidth="xs">
-      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
         <Typography variant="h5" align="center" gutterBottom>
-          Create an Account
+          Create a PingMe Account
         </Typography>
-        <Box component="form" onSubmit={handleSubmit}>
+
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <TextField
-            fullWidth
             margin="normal"
-            label="Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
+            required
+            fullWidth
+            label="Full Name"
+            value={name}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setName(e.target.value)
+            }
           />
           <TextField
-            fullWidth
             margin="normal"
+            required
+            fullWidth
             label="Email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
+            type="email"
+            value={email}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.target.value)
+            }
           />
           <TextField
-            fullWidth
             margin="normal"
+            required
+            fullWidth
             label="Password"
-            name="password"
             type="password"
-            value={form.password}
-            onChange={handleChange}
+            value={password}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setPassword(e.target.value)
+            }
           />
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-            Register
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 2 }}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={20} /> : null}
+          >
+            {loading ? "Registering..." : "Register"}
           </Button>
         </Box>
+
+        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            style={{ textDecoration: "none", color: "#1976d2" }}
+          >
+            Login
+          </Link>
+        </Typography>
       </Paper>
     </Container>
   );

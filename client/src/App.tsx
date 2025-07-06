@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Auth/Login/Login";
 import Register from "./components/Auth/Register/Register";
 import Chat from "./pages/Chat/Chat";
+import Landing from "./pages/Landing/Landing";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import type { ReactNode } from "react";
 
@@ -21,20 +22,18 @@ function PrivateRoute({ children }: PrivateRouteProps) {
 
 function App({ mode, toggleTheme }: AppProps) {
   return (
-
-
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
             path="/chat"
             element={
               <PrivateRoute>
-              <Chat mode={mode} toggleTheme={toggleTheme} />
-            </PrivateRoute>
+                <Chat mode={mode} toggleTheme={toggleTheme} />
+              </PrivateRoute>
             }
           />
         </Routes>

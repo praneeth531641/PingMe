@@ -98,6 +98,8 @@ import {
   } from "@mui/material";
   import { useState, type FC, type MouseEvent } from "react";
   import { Brightness4, Brightness7, Logout } from "@mui/icons-material";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
   
   type TopBarProps = {
     userName: string;
@@ -105,22 +107,29 @@ import {
     toggleTheme: () => void;
   };
   
-  const TopBar: FC<TopBarProps> = ({ userName, mode, toggleTheme }) => {
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
-  
-    const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
-      setAnchorEl(event.currentTarget);
-    };
-  
+
+    
+    const TopBar: FC<TopBarProps> = ({ userName, mode, toggleTheme }) => {
+        const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+        const { logout } = useAuth(); // ✅ Get logout from context
+        const open = Boolean(anchorEl);
+
+        const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
+          setAnchorEl(event.currentTarget);
+        };
+      
+        const navigate = useNavigate(); // ✅
+
+        const handleLogout = () => {
+          localStorage.removeItem("token");
+          logout();
+          navigate("/login"); // ✅ No full reload
+        };
     const handleMenuClose = () => {
       setAnchorEl(null);
     };
   
-    const handleLogout = () => {
-      localStorage.removeItem("token");
-      location.href = "/login";
-    };
+
   
     return (
       <AppBar position="static" sx={{ bgcolor: mode === "dark" ? "#333" : "#1976d2" }}>
