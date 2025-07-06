@@ -21,6 +21,8 @@ function PrivateRoute({ children }: PrivateRouteProps) {
 
 function App({ mode, toggleTheme }: AppProps) {
   return (
+
+
     <AuthProvider>
       <BrowserRouter>
         <Routes>
